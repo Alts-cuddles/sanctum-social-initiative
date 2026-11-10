@@ -1,0 +1,4 @@
+/* Sanctum Social Initiative: show when the tracker toggle is on. */
+#combat .sit-toggle.active {
+  color: var(--color-text-hyperlink, #ff6400);
+}

@@ -1,0 +1,56 @@
+{
+  "id": "sanctum-social-initiative",
+  "title": "Sanctum Social Initiative",
+  "description": "Social-encounter initiative for Cyberpunk RED. In an encounter marked social, CPR's normal initiative roll uses COOL instead of REF, adds the Rockerboy's Charismatic Impact rank, and leaves out Speedware and Solo Initiative Reaction. Everything else is CPR's own initiative and the core Combat Tracker.",
+  "version": "2.0.0",
+  "authors": [
+    {
+      "name": "Alts-cuddles",
+      "url": "https://github.com/Alts-cuddles"
+    }
+  ],
+  "compatibility": {
+    "minimum": "11",
+    "verified": "12.343",
+    "maximum": "12"
+  },
+  "esmodules": [
+    "scripts/module.js"
+  ],
+  "styles": [
+    "styles/social-initiative.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "cyberpunk-red-core",
+        "type": "system",
+        "compatibility": {
+          "minimum": "0.88.0",
+          "verified": "0.92.4"
+        }
+      }
+    ],
+    "recommends": [
+      {
+        "id": "lib-wrapper",
+        "type": "module",
+        "reason": "Conflict-safe wrapping of CPR's getInitiativeRoll. The module still works without it."
+      }
+    ]
+  },
+  "url": "https://github.com/Alts-cuddles/sanctum-social-initiative",
+  "manifest": "https://github.com/Alts-cuddles/sanctum-social-initiative/releases/latest/download/module.json",
+  "download": "https://github.com/Alts-cuddles/sanctum-social-initiative/releases/latest/download/sanctum-social-initiative.zip",
+  "bugs": "https://github.com/Alts-cuddles/sanctum-social-initiative/issues",
+  "readme": "https://github.com/Alts-cuddles/sanctum-social-initiative#readme",
+  "changelog": "https://github.com/Alts-cuddles/sanctum-social-initiative/blob/main/CHANGELOG.md",
+  "license": "LICENSE"
+}

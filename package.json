@@ -1,0 +1,9 @@
+{
+  "name": "sanctum-social-initiative",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/social-initiative.test.js",
+    "check": "node --check scripts/module.js && node --check scripts/social-initiative.js"
+  }
+}
