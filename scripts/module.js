@@ -7,8 +7,7 @@
  *   2. Active Effects on bonuses.initiative (Speedware) are not added.
  *   3. Role initiative mods (Solo Initiative Reaction) are not added.
  *   4. Charismatic Impact rank, plus Active Effects on bonuses.charismaticImpact, is added.
- * Everything else (the d10, criticals, Dice So Nice, the chat card, sorting, the tracker)
- * is still CPR's normal CPRCombat.rollInitiative and the core Combat Tracker.
+ * Everything else is still CPR's normal initiative and the core Combat Tracker.
  */
 import { CPRInitiative } from "/systems/cyberpunk-red-core/modules/rolls/cpr-rolls.js";
 import CPRMod from "/systems/cyberpunk-red-core/modules/rolls/cpr-modifiers.js";
@@ -62,8 +61,8 @@ function addSocialToggle(app, html) {
   if (!game.user.isGM) return;
   const combat = app.viewed;
   if (!combat) return;
-  const root = html instanceof HTMLElement ? html : html[0];
-  const nav = root?.querySelector("nav.encounters");
+  const root = html instanceof HTMLElement ? html : (html[0] || html);
+  const nav = root?.querySelector?.("nav.encounters") || root?.find?.("nav.encounters")?.[0];
   if (!nav || nav.querySelector(".sit-toggle")) return;
 
   const social = isSocialCombat(combat);
@@ -78,11 +77,6 @@ function addSocialToggle(app, html) {
   nav.append(button);
 }
 
-/**
- * Token HUD chat-bubble button.
- * Clicking it adds the selected tokens to the current encounter (creating one if needed)
- * and marks that encounter as social. Clicking again removes them.
- */
 async function toggleSocialForTokens(token) {
   if (!game.user.isGM) return;
   const tokens = canvas.tokens.controlled.length ? canvas.tokens.controlled : [token];
@@ -93,7 +87,6 @@ async function toggleSocialForTokens(token) {
     combat = await Combat.create({ scene: canvas.scene.id, active: true });
   }
 
-  // Ensure the encounter is marked social
   if (!isSocialCombat(combat)) {
     await combat.setFlag(MODULE_ID, SOCIAL_FLAG, true);
   }
@@ -112,16 +105,22 @@ async function toggleSocialForTokens(token) {
 
 function addTokenHudButton(hud, html, data) {
   if (!game.user.isGM) return;
-  const root = html instanceof HTMLElement ? html : html[0];
-  const col = root.querySelector(".col.right") || root.querySelector(".right") || root.querySelector(".column.right");
+  const root = html instanceof HTMLElement ? html : (html[0] || html);
+  // Robust column finder for different Foundry versions
+  const col = root.querySelector(".col.right")
+    || root.querySelector(".column.right")
+    || root.querySelector(".right")
+    || root.querySelector("[class*='right']")
+    || root;
   if (!col || col.querySelector(".sit-hud-social")) return;
 
+  const tokenId = data._id || data.id || hud.object?.id;
   const combat = game.combat;
-  const inSocial = combat && isSocialCombat(combat) && combat.combatants.some(c => c.tokenId === data._id || c.tokenId === data.id);
+  const inSocial = combat && isSocialCombat(combat) && combat.combatants.some(c => c.tokenId === tokenId);
 
   const button = document.createElement("div");
   button.className = `control-icon sit-hud-social${inSocial ? " active" : ""}`;
-  button.dataset.tooltip = game.i18n.localize("SIT.HUD.Toggle");
+  button.title = game.i18n.localize("SIT.HUD.Toggle");
   button.innerHTML = '<i class="fas fa-comments"></i>';
   button.addEventListener("click", (ev) => {
     ev.preventDefault();
@@ -129,11 +128,14 @@ function addTokenHudButton(hud, html, data) {
     toggleSocialForTokens(hud.object);
   });
 
-  // Place it near the combat button if possible
-  const combatBtn = col.querySelector("[data-action='combat'], .combat, .fa-swords")?.closest(".control-icon")
-    || col.querySelector(".fa-swords")?.closest(".control-icon");
-  if (combatBtn) combatBtn.after(button);
-  else col.prepend(button);
+  // Prefer placing after the combat button
+  const combatIcon = col.querySelector(".fa-swords, .fa-fist-raised, [data-action='combat']");
+  const combatBtn = combatIcon?.closest(".control-icon");
+  if (combatBtn) {
+    combatBtn.after(button);
+  } else {
+    col.append(button);
+  }
 }
 
 Hooks.once("setup", registerWrapper);
