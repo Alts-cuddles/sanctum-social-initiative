@@ -2,7 +2,7 @@
   "id": "sanctum-social-initiative",
   "title": "Sanctum Social Initiative",
   "description": "Social-encounter initiative for Cyberpunk RED. In an encounter marked social, CPR's normal initiative roll uses COOL instead of REF, adds the Rockerboy's Charismatic Impact rank, and leaves out Speedware and Solo Initiative Reaction. Everything else is CPR's own initiative and the core Combat Tracker.",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "authors": [
     {
       "name": "Alts-cuddles",
