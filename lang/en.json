@@ -1,4 +1,5 @@
 {
   "SIT.Toggle.Enable": "Social initiative: off (click to use COOL + Charismatic Impact)",
-  "SIT.Toggle.Disable": "Social initiative: on (click to return to normal combat initiative)"
+  "SIT.Toggle.Disable": "Social initiative: on (click to return to normal combat initiative)",
+  "SIT.HUD.Toggle": "Toggle Social Initiative"
 }
