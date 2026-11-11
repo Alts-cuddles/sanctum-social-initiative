@@ -57,7 +57,7 @@ function registerWrapper() {
   };
 }
 
-/** GM-only toggle in the tracker header: the one way to mark an encounter as social. */
+/** GM-only toggle in the tracker header. */
 function addSocialToggle(app, html) {
   if (!game.user.isGM) return;
   const combat = app.viewed;
@@ -78,5 +78,64 @@ function addSocialToggle(app, html) {
   nav.append(button);
 }
 
+/**
+ * Token HUD chat-bubble button.
+ * Clicking it adds the selected tokens to the current encounter (creating one if needed)
+ * and marks that encounter as social. Clicking again removes them.
+ */
+async function toggleSocialForTokens(token) {
+  if (!game.user.isGM) return;
+  const tokens = canvas.tokens.controlled.length ? canvas.tokens.controlled : [token];
+  if (!tokens.length) return;
+
+  let combat = game.combat;
+  if (!combat) {
+    combat = await Combat.create({ scene: canvas.scene.id, active: true });
+  }
+
+  // Ensure the encounter is marked social
+  if (!isSocialCombat(combat)) {
+    await combat.setFlag(MODULE_ID, SOCIAL_FLAG, true);
+  }
+
+  const toAdd = [];
+  const toRemove = [];
+  for (const t of tokens) {
+    const existing = combat.combatants.find(c => c.tokenId === t.id);
+    if (existing) toRemove.push(existing.id);
+    else toAdd.push({ tokenId: t.id, sceneId: canvas.scene.id, actorId: t.actor?.id, hidden: t.document.hidden });
+  }
+
+  if (toRemove.length) await combat.deleteEmbeddedDocuments("Combatant", toRemove);
+  if (toAdd.length) await combat.createEmbeddedDocuments("Combatant", toAdd);
+}
+
+function addTokenHudButton(hud, html, data) {
+  if (!game.user.isGM) return;
+  const root = html instanceof HTMLElement ? html : html[0];
+  const col = root.querySelector(".col.right") || root.querySelector(".right") || root.querySelector(".column.right");
+  if (!col || col.querySelector(".sit-hud-social")) return;
+
+  const combat = game.combat;
+  const inSocial = combat && isSocialCombat(combat) && combat.combatants.some(c => c.tokenId === data._id || c.tokenId === data.id);
+
+  const button = document.createElement("div");
+  button.className = `control-icon sit-hud-social${inSocial ? " active" : ""}`;
+  button.dataset.tooltip = game.i18n.localize("SIT.HUD.Toggle");
+  button.innerHTML = '<i class="fas fa-comments"></i>';
+  button.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    toggleSocialForTokens(hud.object);
+  });
+
+  // Place it near the combat button if possible
+  const combatBtn = col.querySelector("[data-action='combat'], .combat, .fa-swords")?.closest(".control-icon")
+    || col.querySelector(".fa-swords")?.closest(".control-icon");
+  if (combatBtn) combatBtn.after(button);
+  else col.prepend(button);
+}
+
 Hooks.once("setup", registerWrapper);
 Hooks.on("renderCombatTracker", addSocialToggle);
+Hooks.on("renderTokenHUD", addTokenHudButton);
