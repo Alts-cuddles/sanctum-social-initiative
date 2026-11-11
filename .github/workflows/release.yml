@@ -1,0 +1,43 @@
+name: Release
+
+# Publish a GitHub Release with a tag like v2.1.0 and this workflow
+# stamps the version + URLs into module.json, zips the module, and
+# attaches module.json and sanctum-social-initiative.zip to the release.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stamp module.json
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          VERSION="${TAG#v}"
+          jq --arg v "$VERSION" --arg repo "$REPO" --arg tag "$TAG" '
+            .version = $v
+            | .url = "https://github.com/\($repo)"
+            | .manifest = "https://github.com/\($repo)/releases/latest/download/module.json"
+            | .download = "https://github.com/\($repo)/releases/download/\($tag)/sanctum-social-initiative.zip"
+            | .bugs = "https://github.com/\($repo)/issues"
+          ' module.json > module.tmp && mv module.tmp module.json
+          cat module.json
+
+      - name: Build zip
+        run: zip -r sanctum-social-initiative.zip module.json LICENSE README.md scripts styles lang
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            module.json
+            sanctum-social-initiative.zip
