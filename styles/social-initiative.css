@@ -1,4 +1,13 @@
-/* Sanctum Social Initiative: show when the tracker toggle is on. */
+/* Sanctum Social Initiative */
+
 #combat .sit-toggle.active {
   color: var(--color-text-hyperlink, #ff6400);
+}
+
+#token-hud .control-icon.sit-hud-social.active {
+  border-color: #c9a227;
+  box-shadow: 0 0 6px #c9a227;
+}
+#token-hud .control-icon.sit-hud-social.active i {
+  color: #f3e3a3;
 }
